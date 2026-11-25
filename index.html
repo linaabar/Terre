@@ -3,70 +3,69 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lambert I → KML</title>
+  <title>Conversion de points</title>
   <script src="https://cdn.jsdelivr.net/npm/proj4@2.11.0/dist/proj4.js"></script>
   <style>
     * { box-sizing: border-box; }
+
     body {
-      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-      background: #f3f5f7;
-      color: #1f2933;
       margin: 0;
-      padding: 32px 16px;
+      padding: 2rem 1rem;
+      font-family: system-ui, sans-serif;
+      background: #f3f4f6;
+      color: #1f2937;
     }
-    .carte {
-      max-width: 760px;
-      margin: 0 auto;
-      background: #fff;
+
+    main {
+      max-width: 700px;
+      margin: auto;
+      background: white;
+      padding: 2rem;
       border-radius: 12px;
-      padding: 28px;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
     }
-    h1 { margin: 0 0 4px; font-size: 1.5rem; }
-    .sous-titre { margin: 0 0 24px; color: #616e7c; }
+
+    h1 { margin-top: 0; }
 
     form {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr auto;
-      gap: 12px;
+      gap: 0.75rem;
       align-items: end;
-      margin-bottom: 24px;
     }
-    label { display: flex; flex-direction: column; font-size: 0.85rem; font-weight: 600; gap: 6px; }
+
+    label { font-weight: 600; font-size: 0.9rem; }
+
     input {
-      padding: 10px;
-      border: 1px solid #cbd2d9;
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #d1d5db;
       border-radius: 8px;
       font-size: 1rem;
     }
-    input:focus { outline: 2px solid #3b82f6; border-color: transparent; }
 
-    button {
-      padding: 10px 18px;
+    button, .bouton {
+      display: inline-block;
+      font-family: inherit;
+      font-weight: normal;
+      padding: 0.5rem 1rem;
       border: none;
       border-radius: 8px;
+      background: #2563eb;
+      color: white;
       font-size: 1rem;
-      font-weight: 600;
       cursor: pointer;
     }
-    .btn-ajouter { background: #3b82f6; color: #fff; }
-    .btn-ajouter:hover { background: #2563eb; }
-    .btn-generer { background: #16a34a; color: #fff; width: 100%; margin-top: 20px; padding: 14px; }
-    .btn-generer:hover { background: #15803d; }
-    .btn-generer:disabled { background: #9ca3af; cursor: not-allowed; }
-    .btn-supprimer { background: none; color: #dc2626; padding: 4px 8px; font-size: 1.1rem; }
-    .btn-supprimer:hover { background: #fee2e2; }
 
-    .tableau-conteneur { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 10px; text-align: left; border-bottom: 1px solid #e4e7eb; }
-    th { background: #f9fafb; font-size: 0.85rem; text-transform: uppercase; color: #616e7c; }
-    td.num { font-variant-numeric: tabular-nums; }
-    .vide { text-align: center; color: #9aa5b1; padding: 24px; }
-    .compteur { margin: 0 0 8px; color: #616e7c; font-size: 0.9rem; }
-    .message { margin-top: 12px; font-size: 0.9rem; }
-    .message.erreur { color: #dc2626; }
-    .message.succes { color: #16a34a; }
+    button.supprimer { background: none; color: #b91c1c; }
+
+    .import { margin-top: 1rem; }
+
+    table { width: 100%; margin-top: 1.5rem; border-collapse: collapse; }
+    th, td { padding: 0.5rem; text-align: left; border-bottom: 1px solid #e5e7eb; }
+
+    #generer { margin-top: 1.5rem; }
+
+    #message { margin-top: 1rem; }
 
     @media (max-width: 600px) {
       form { grid-template-columns: 1fr; }
@@ -74,172 +73,188 @@
   </style>
 </head>
 <body>
-  <div class="carte">
-    <h1>Points Lambert I → KML</h1>
-    <p class="sous-titre">Ajoute tes points (Lambert Zone I Maroc), puis génère le fichier KML.</p>
+  <main>
+    <h1>Conversion de points</h1>
+    <p>Lambert I Nord Maroc vers WGS 84, puis fichier KML.</p>
 
     <form id="formulaire">
-      <label>Nom du point
-        <input id="nom" type="text" placeholder="ex : B1" required>
-      </label>
-      <label>X
-        <input id="x" type="number" step="any" placeholder="640503.59" required>
-      </label>
-      <label>Y
-        <input id="y" type="number" step="any" placeholder="507739.08" required>
-      </label>
-      <button type="submit" class="btn-ajouter">Ajouter</button>
+      <div>
+        <label for="nom">Nom</label>
+        <input id="nom" type="text" placeholder="B1" required>
+      </div>
+      <div>
+        <label for="x">X</label>
+        <input id="x" type="text" inputmode="decimal" placeholder="640503,59" required>
+      </div>
+      <div>
+        <label for="y">Y</label>
+        <input id="y" type="text" inputmode="decimal" placeholder="507739,08" required>
+      </div>
+      <button type="submit">Ajouter</button>
     </form>
 
-    <p class="compteur" id="compteur">0 point</p>
-    <div class="tableau-conteneur">
-      <table>
-        <thead>
-          <tr><th>#</th><th>Nom</th><th>X</th><th>Y</th><th></th></tr>
-        </thead>
-        <tbody id="corps-tableau"></tbody>
-      </table>
+    <div class="import">
+      <label for="csv" class="bouton">Choisir un fichier CSV</label>
+      <input id="csv" type="file" accept=".csv" hidden>
     </div>
 
-    <button class="btn-generer" id="generer" disabled>Générer le fichier KML</button>
-    <p class="message" id="message"></p>
-  </div>
+    <table>
+      <thead>
+        <tr><th>Nom</th><th>X</th><th>Y</th><th></th></tr>
+      </thead>
+      <tbody id="tableau"></tbody>
+    </table>
+
+    <button id="generer">Générer le fichier KML</button>
+    <p id="message"></p>
+  </main>
 
   <script>
-    // Lambert Nord Maroc (EPSG:26191) -> WGS 84, mêmes paramètres que pyproj
-    // (ellipsoïde Clarke 1880 IGN + Helmert 31, 146, 47)
-    const LAMBERT_1 =
-      "+proj=lcc +lat_1=33.3 +lat_0=33.3 +lon_0=-5.4 +k_0=0.999625769 " +
-      "+x_0=500000 +y_0=300000 +a=6378249.2 +rf=293.4660212936269 " +
-      "+towgs84=31,146,47,0,0,0,0 +units=m +no_defs";
+    const LAMBERT = "+proj=lcc +lat_1=33.3 +lat_0=33.3 +lon_0=-5.4 +k_0=0.999625769 +x_0=500000 +y_0=300000 +a=6378249.2 +rf=293.4660212936269 +towgs84=31,146,47,0,0,0,0 +units=m +no_defs";
     const WGS84 = "+proj=longlat +datum=WGS84 +no_defs";
 
-    function lambert1VersWgs84(points) {
-      return points.map((p) => {
-        const [lon, lat] = proj4(LAMBERT_1, WGS84, [p.x, p.y]);
-        return { nom: p.nom, x: p.x, y: p.y, lon, lat };
+    const points = [];
+
+    const formulaire = document.getElementById("formulaire");
+    const nom = document.getElementById("nom");
+    const x = document.getElementById("x");
+    const y = document.getElementById("y");
+    const csv = document.getElementById("csv");
+    const tableau = document.getElementById("tableau");
+    const generer = document.getElementById("generer");
+    const message = document.getElementById("message");
+
+    function lireNombre(texte) {
+      const nombre = Number(texte.trim().replace(",", "."));
+      return texte.trim() === "" || isNaN(nombre) ? null : nombre;
+    }
+
+    function echapper(texte) {
+      return texte.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    function afficherTableau() {
+      tableau.innerHTML = "";
+      points.forEach((point, i) => {
+        const ligne = tableau.insertRow();
+        ligne.insertCell().textContent = point.nom;
+        ligne.insertCell().textContent = point.x;
+        ligne.insertCell().textContent = point.y;
+
+        const bouton = document.createElement("button");
+        bouton.textContent = "✕";
+        bouton.className = "supprimer";
+        bouton.onclick = () => {
+          points.splice(i, 1);
+          afficherTableau();
+        };
+        ligne.insertCell().appendChild(bouton);
       });
     }
 
-    function echapperXml(texte) {
-      return texte
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;");
-    }
+    function creerKml() {
+      const convertis = points.map((p) => {
+        const [lon, lat] = proj4(LAMBERT, WGS84, [p.x, p.y]);
+        return { ...p, lon, lat };
+      });
 
-    function genererKml(pts) {
-      const coord = (p) => `${p.lon.toFixed(8)},${p.lat.toFixed(8)},0`;
+      const coordonnees = (p) => `${p.lon.toFixed(8)},${p.lat.toFixed(8)},0`;
 
-      const placemarks = pts.map((p) => `
-    <Placemark>
-      <name>${echapperXml(p.nom)}</name>
-      <description>Lambert I : X=${p.x.toFixed(2)}, Y=${p.y.toFixed(2)}
-WGS 84 : Lat=${p.lat.toFixed(6)}, Lon=${p.lon.toFixed(6)}</description>
-      <Point>
-        <coordinates>${coord(p)}</coordinates>
-      </Point>
-    </Placemark>`).join("");
-
-      let trace = "";
-      if (pts.length >= 2) {
-        const coords = pts.map(coord);
-        if (coords.length >= 3) coords.push(coords[0]); // ferme la forme
-        trace = `
-    <Placemark>
-      <name>Tracé des points</name>
-      <styleUrl>#styleTrace</styleUrl>
-      <LineString>
-        <tessellate>1</tessellate>
-        <coordinates>${coords.join(" ")}</coordinates>
-      </LineString>
-    </Placemark>`;
-      }
-
-      return `<?xml version="1.0" encoding="utf-8"?>
+      let kml = `<?xml version="1.0" encoding="utf-8"?>
 <kml xmlns="http://www.opengis.net/kml/2.2">
   <Document>
-    <name>Tracé Lambert Zone I Maroc (WGS 84)</name>
-    <Style id="styleTrace">
+    <name>Tracé Lambert I Nord Maroc</name>
+    <Style id="trace">
       <LineStyle>
         <color>ff0000ff</color>
-        <width>4</width>
+        <width>3</width>
       </LineStyle>
-    </Style>${placemarks}${trace}
-  </Document>
+    </Style>
+`;
+
+      for (const p of convertis) {
+        kml += `    <Placemark>
+      <name>${echapper(p.nom)}</name>
+      <description>Lambert I : X = ${p.x.toFixed(2)}, Y = ${p.y.toFixed(2)}
+WGS 84 : Lat = ${p.lat.toFixed(7)}, Lon = ${p.lon.toFixed(7)}</description>
+      <Point>
+        <coordinates>${coordonnees(p)}</coordinates>
+      </Point>
+    </Placemark>
+`;
+      }
+
+      if (convertis.length >= 2) {
+        const boucle = [...convertis, convertis[0]];
+        kml += `    <Placemark>
+      <name>Tracé fermé</name>
+      <styleUrl>#trace</styleUrl>
+      <LineString>
+        <tessellate>1</tessellate>
+        <coordinates>${boucle.map(coordonnees).join(" ")}</coordinates>
+      </LineString>
+    </Placemark>
+`;
+      }
+
+      return kml + `  </Document>
 </kml>
 `;
     }
 
-    // ---- Interface ----
-    const points = [];
-    const formulaire = document.getElementById("formulaire");
-    const champNom = document.getElementById("nom");
-    const champX = document.getElementById("x");
-    const champY = document.getElementById("y");
-    const corps = document.getElementById("corps-tableau");
-    const compteur = document.getElementById("compteur");
-    const boutonGenerer = document.getElementById("generer");
-    const message = document.getElementById("message");
-
-    function afficherTableau() {
-      corps.innerHTML = "";
-      if (points.length === 0) {
-        corps.innerHTML = '<tr><td colspan="5" class="vide">Aucun point pour le moment</td></tr>';
-      }
-      points.forEach((p, i) => {
-        const ligne = document.createElement("tr");
-        ligne.innerHTML = `
-          <td>${i + 1}</td>
-          <td></td>
-          <td class="num">${p.x.toFixed(2)}</td>
-          <td class="num">${p.y.toFixed(2)}</td>
-          <td><button class="btn-supprimer" title="Supprimer">✕</button></td>`;
-        ligne.children[1].textContent = p.nom;
-        ligne.querySelector(".btn-supprimer").addEventListener("click", () => {
-          points.splice(i, 1);
-          afficherTableau();
-        });
-        corps.appendChild(ligne);
-      });
-      compteur.textContent = points.length + (points.length > 1 ? " points" : " point");
-      boutonGenerer.disabled = points.length === 0;
-    }
-
     formulaire.addEventListener("submit", (e) => {
       e.preventDefault();
-      points.push({
-        nom: champNom.value.trim(),
-        x: parseFloat(champX.value),
-        y: parseFloat(champY.value),
-      });
-      formulaire.reset();
-      champNom.focus();
-      message.textContent = "";
-      afficherTableau();
-    });
+      const valeurX = lireNombre(x.value);
+      const valeurY = lireNombre(y.value);
 
-    boutonGenerer.addEventListener("click", () => {
-      try {
-        const kml = genererKml(lambert1VersWgs84(points));
-        const blob = new Blob([kml], { type: "application/vnd.google-earth.kml+xml" });
-        const lien = document.createElement("a");
-        lien.href = URL.createObjectURL(blob);
-        lien.download = "points.kml";
-        document.body.appendChild(lien);
-        lien.click();
-        lien.remove();
-        setTimeout(() => URL.revokeObjectURL(lien.href), 1000);
-        message.className = "message succes";
-        message.textContent = "Fichier points.kml téléchargé ✔";
-      } catch (err) {
-        message.className = "message erreur";
-        message.textContent = "Erreur : " + err.message;
+      if (valeurX === null || valeurY === null) {
+        message.textContent = "X et Y doivent être des nombres.";
+        return;
       }
+
+      points.push({ nom: nom.value.trim(), x: valeurX, y: valeurY });
+      afficherTableau();
+      formulaire.reset();
+      message.textContent = "";
+      nom.focus();
     });
 
-    afficherTableau();
+    csv.addEventListener("change", async () => {
+      const texte = await csv.files[0].text();
+      let ajoutes = 0;
+
+      for (const ligne of texte.split("\n")) {
+        const colonnes = ligne.split(ligne.includes(";") ? ";" : ",");
+        if (colonnes.length < 3) continue;
+
+        const valeurX = lireNombre(colonnes[1]);
+        const valeurY = lireNombre(colonnes[2]);
+        if (valeurX === null || valeurY === null) continue;
+
+        points.push({ nom: colonnes[0].trim(), x: valeurX, y: valeurY });
+        ajoutes++;
+      }
+
+      afficherTableau();
+      message.textContent = ajoutes + " point(s) importé(s).";
+      csv.value = "";
+    });
+
+    generer.addEventListener("click", () => {
+      if (points.length === 0) {
+        message.textContent = "Ajoute au moins un point.";
+        return;
+      }
+
+      const fichier = new Blob([creerKml()], { type: "application/vnd.google-earth.kml+xml" });
+      const lien = document.createElement("a");
+      lien.href = URL.createObjectURL(fichier);
+      lien.download = "trace_lambert1.kml";
+      document.body.appendChild(lien);
+      lien.click();
+      lien.remove();
+      message.textContent = "Fichier téléchargé.";
+    });
   </script>
 </body>
 </html>
