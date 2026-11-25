@@ -61,6 +61,8 @@ def fichier_kml(points_wgs84: list[dict], nom_fichier: str = "trace_lambert1.kml
 
         coords_ligne = ET.SubElement(line_string, "coordinates")
         liste_coords = [f"{pt['lon']:.8f},{pt['lat']:.8f},0" for pt in points_wgs84]
+        if len(liste_coords) >= 3:
+            liste_coords.append(liste_coords[0])  # Ferme la forme : retour au premier point
         coords_ligne.text = " ".join(liste_coords)
 
     arbre = ET.ElementTree(kml)
