@@ -58,6 +58,14 @@
 
     button.supprimer { background: none; color: #b91c1c; }
 
+    button.vider {
+      background: #dc2626;
+      margin-top: 1.5rem;
+      margin-right: 0.5rem;
+    }
+
+    button.vider:hover { background: #b91c1c; }
+
     .import { margin-top: 1rem; }
 
     table { width: 100%; margin-top: 1.5rem; border-collapse: collapse; }
@@ -105,6 +113,7 @@
       <tbody id="tableau"></tbody>
     </table>
 
+    <button id="vider" class="vider" type="button">Vider le tableau</button>
     <button id="generer">Générer le fichier KML</button>
     <p id="message"></p>
   </main>
@@ -254,6 +263,12 @@ WGS 84 : Lat = ${p.lat.toFixed(7)}, Lon = ${p.lon.toFixed(7)}</description>
       lien.click();
       lien.remove();
       message.textContent = "Fichier téléchargé.";
+    });
+
+    vider.addEventListener("click", () => {
+      points.length = 0;
+      afficherTableau();
+      message.textContent = "Tableau vidé.";
     });
   </script>
 </body>
